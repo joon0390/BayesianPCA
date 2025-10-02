@@ -1,9 +1,21 @@
 import numpy as np
 
 class BayesianPCA:
-    def __init__(self,max_iter=100,eps=1e-6):
+    def __init__(self, n_components=None, max_iter=100, eps=1e-6):
+        """
+        Bayesian PCA (Bishop, 1999)
+        Parameters
+        ----------
+        n_components : int, optional
+            Number of latent dimensions. If None, defaults to d-1.
+        max_iter : int
+            Maximum EM iterations.
+        eps : float
+            Convergence tolerance.
+        """
         self.max_iter = max_iter
         self.eps = eps
+        self.n_components = n_components
 
     def _init_params(self,X):
         self.sigma2 = np.random.random()
@@ -26,9 +38,12 @@ class BayesianPCA:
     
         self.alpha = self.d / np.linalg.norm(self.W,axis=0)**2 # Re-estimation of alphas
 
-    def fit(self,X):
+    def fit(self, X):
         self.d = X.shape[1]
-        self.q = self.d - 1
+        if self.n_components is None:
+            self.q = self.d - 1
+        else:
+            self.q = self.n_components
 
         self.mu = np.mean(X,axis=0) 
         X = X - self.mu
